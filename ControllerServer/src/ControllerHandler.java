@@ -69,9 +69,11 @@ class ControllerHandler extends Thread
 	public ControllerHandler(Socket s, File csv) throws IOException 
 	{ 
 		this.socket = s; 
-		this.objinput = new ObjectInputStream(s.getInputStream());
 		this.objoutput = new ObjectOutputStream(s.getOutputStream());
+		this.objinput = new ObjectInputStream(s.getInputStream());
 		this.csv = csv;
+		
+		System.out.println("Handler created"); 
 	} 
 
 	@Override

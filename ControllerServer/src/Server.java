@@ -33,7 +33,7 @@ public class Server {
 				//A new thread is created to handle the client
 				Thread t = new ControllerHandler(socket, csv);
 				t.start();
-				System.out.println("Handler created"); 
+				System.out.println("Handler running"); 
 				
 			}
 			catch (Exception e){ 
