@@ -6,7 +6,7 @@ public class LightController extends Controller{
 	public LightController(String ipaddress, int port) throws Exception {
 		
 		super(ipaddress, port, "LIGHT");
-
+		this.start();
 	}
 
 	@Override
@@ -14,5 +14,4 @@ public class LightController extends Controller{
 		// TODO Auto-generated method stub
 		
 	}
-
 }

@@ -60,8 +60,11 @@ public abstract class Controller {
 		this.objoutput = new ObjectOutputStream(this.socket.getOutputStream()); 
 		this.objinput = new ObjectInputStream(this.socket.getInputStream()); 
 
-		
 		System.out.println("Set up complete");
+				
+	}
+	
+	protected void start() throws Exception {
 		
 		while (true) 
 		{ 
@@ -93,7 +96,6 @@ public abstract class Controller {
 		socket.close(); 
 		objinput.close(); 
 		objoutput.close(); 
-				
 	}
 	
 	protected abstract void handleReading(float value);

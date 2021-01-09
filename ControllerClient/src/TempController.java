@@ -9,6 +9,7 @@ public class TempController extends Controller{
 		
 		super(ipaddress, port, "TEMP");
 		this.fan = new FanDisplay();
+		this.start();
 	}
 	
 	@Override
@@ -16,5 +17,4 @@ public class TempController extends Controller{
 					
 		fan.setSpeed(value);
 	}
-
 }
