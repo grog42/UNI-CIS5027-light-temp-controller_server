@@ -5,7 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
- * Thread to handle communications with a client
+ * Thread to handle server communications with a client
  * @author RohanCollins
  */
 class ControllerHandler extends Thread 

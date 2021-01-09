@@ -3,6 +3,11 @@ import java.io.File;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Server which connects to clients and provides enviromental data
+ * @author RohanCollins
+ *
+ */
 public class Server {
 	
 	private final File						csv;

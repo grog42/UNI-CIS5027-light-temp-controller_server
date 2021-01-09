@@ -4,11 +4,13 @@ package fan;
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
 
+/**
+ * Displays a fan with a controllable speed
+ * @author RohanCollins
+ *
+ */
 public class FanDisplay extends JFrame {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	// static instance to support singleton

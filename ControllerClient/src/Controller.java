@@ -4,6 +4,11 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * A objects which acts as a client to communicate with the server for enviromental data
+ * @author RohanCollins
+ *
+ */
 public abstract class Controller {
 	
 	protected final String 						type;
@@ -64,6 +69,10 @@ public abstract class Controller {
 				
 	}
 	
+	/**
+	 * Starts the communications loop with the server
+	 * @throws Exception
+	 */
 	protected void start() throws Exception {
 		
 		while (true) 

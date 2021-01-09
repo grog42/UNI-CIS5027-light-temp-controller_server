@@ -1,4 +1,9 @@
 
+/**
+ * Controller specifically to handle light readings from server 
+ * @author RohanCollins
+ *
+ */
 public class LightController extends Controller{
 
 	protected final String 			type = "LIGHT";
