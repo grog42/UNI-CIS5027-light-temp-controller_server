@@ -53,10 +53,9 @@ class ControllerHandler extends Thread
 				System.out.println("DataReadingThread ended");
 				reader.close();
 				
-			} catch (Exception e) { 
+			} catch (IOException | InterruptedException e) { 
 				e.printStackTrace(); 
 			}
-			
 		}
 	};
 
@@ -68,12 +67,14 @@ class ControllerHandler extends Thread
 	 */
 	public ControllerHandler(Socket s, File csv) throws IOException 
 	{ 
+		System.out.println("Handler set up...");
+		
 		this.socket = s; 
 		this.objoutput = new ObjectOutputStream(s.getOutputStream());
 		this.objinput = new ObjectInputStream(s.getInputStream());
 		this.csv = csv;
 		
-		System.out.println("Handler created"); 
+		System.out.println("Handler set up complete");
 	} 
 
 	@Override
@@ -81,14 +82,14 @@ class ControllerHandler extends Thread
 	 * run method, called when a client handler thread is starting..
 	 * handles client requests
 	 */
-	public void run() 
+	public void run()
 	{ 
+		System.out.println("Handler starting"); 
 		try { 
 			
-			boolean connected = true;
 			requestType();
 		
-			while (connected) 
+			while (!this.interrupted()) 
 			{ 
 				ControllerMessage received = readStream();
 				
@@ -100,9 +101,7 @@ class ControllerHandler extends Thread
 					
 					case "STOP":
 						
-						dataReadingThread.interrupt();
-						disconnect();
-						connected = false; 
+						this.interrupt();
 						break; 
 						
 					case "ANSWER_TYPE":
@@ -116,21 +115,33 @@ class ControllerHandler extends Thread
 			
 		} catch (IOException | ClassNotFoundException e) { 
 			e.printStackTrace(); 
+			System.out.println("Exception detected closing connection"); 
 		} 
+		
+		disconnect();
 	} 
 	
 	/**
 	 * Close connection to client
 	 */
-	private void disconnect() throws IOException {
+	private void disconnect() {
 		
-		System.out.println("Client " + this.socket + " sends exit..."); 
-		System.out.println("Closing this connection."); 
-		this.socket.close();
-		this.objinput.close(); 
-		this.objoutput.close(); 
+		try {
+
+			System.out.println("Client " + this.socket + " sends exit..."); 
+			System.out.println("Closing this connection."); 
+			
+			dataReadingThread.interrupt();
+			this.socket.close();
+			this.objinput.close(); 
+			this.objoutput.close(); 
+			
+			System.out.println("Connection closed"); 
 		
-		System.out.println("Connection closed"); 
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -139,11 +150,13 @@ class ControllerHandler extends Thread
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	private ControllerMessage readStream() throws ClassNotFoundException, IOException {
+	private ControllerMessage readStream() throws IOException, ClassNotFoundException {
 		
-		ControllerMessage received = (ControllerMessage) this.objinput.readObject();
+		ControllerMessage received;
+
+		received = (ControllerMessage) this.objinput.readObject();		
 		System.out.println("Msg recived: " + received.toText()); 
-		
+			
 		return received;
 	}
 	
@@ -155,5 +168,12 @@ class ControllerHandler extends Thread
 		
 		System.out.println("Type requested"); 
 		this.objoutput.writeObject(new ControllerMessage("REQUEST_TYPE", 0, "Welcome"));
+	}
+	
+	private void sendStop() throws IOException {
+		
+		System.out.println("Type requested"); 
+		this.objoutput.writeObject(new ControllerMessage("STOP", 0, "Handler thread shutting down"));
+		
 	}
 } 

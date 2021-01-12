@@ -1,3 +1,5 @@
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 /**
  * Controller specifically to handle light readings from server 
@@ -8,7 +10,7 @@ public class LightController extends Controller{
 
 	protected final String 			type = "LIGHT";
 	
-	public LightController(String ipaddress, int port) throws Exception {
+	public LightController(String ipaddress, int port) throws IOException {
 		
 		super(ipaddress, port, "LIGHT");
 		this.start();

@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 /**
@@ -25,24 +26,23 @@ public abstract class Controller {
 	 * Thread to listen for user input
 	 */
 	protected final Thread userInputThread = new Thread() {
+		
+		@Override
 		public void run() {
 			
 			Scanner scn = new Scanner(System.in); 
 			
-			while(true) {
+			while(!this.isInterrupted()) {
 				
 				userInput = scn.nextLine();
 				
 				System.out.println("User inputted:" + userInput);
-				
-				if(userInput.equals("STOP")) 
-				{ 
-					System.out.println("UserInputThread ended");
-					scn.close();
-					break; 
-				}
-			}	
+			}
+			
+			System.out.println("UserInputThread ended");
+			scn.close();
 		}
+		
 	};
 	
 	/**
@@ -50,22 +50,25 @@ public abstract class Controller {
 	 * @param ipaddress
 	 * @param port
 	 * @param type
+	 * @throws IOException 
+	 * @throws UnknownHostException 
 	 * @throws Exception  
 	 */
-	public Controller(String ipaddress, int port, String type) throws Exception {
+	public Controller(String ipaddress, int port, String type) throws IOException {
+		
+		System.out.println("Controller set up...");
 		
 		this.type = type;
 		this.ipaddress = ipaddress;
 		this.portnumber = port;
 		this.userInput = "";
-		this.userInputThread.start();
 
 		//connect to server
 		this.socket = new Socket(this.ipaddress, this.portnumber);
 		this.objoutput = new ObjectOutputStream(this.socket.getOutputStream()); 
 		this.objinput = new ObjectInputStream(this.socket.getInputStream()); 
 
-		System.out.println("Set up complete");
+		System.out.println("Controller set up complete");
 				
 	}
 	
@@ -73,38 +76,48 @@ public abstract class Controller {
 	 * Starts the communications loop with the server
 	 * @throws Exception
 	 */
-	protected void start() throws Exception {
+	protected void start() {
 		
-		while (true) 
-		{ 
-			ControllerMessage received = readStream();
+		try {
 			
-			if(userInput.equals("STOP")) 
+			this.userInputThread.start();
+			
+			while (true) 
 			{ 
-				disconnect();
-				break; 
-			}
-			else {
+				ControllerMessage received = readStream();
 				
-				switch(received.getType()){
-				
-				case "REQUEST_TYPE": 
-					answerType();
+				if(userInput.equals("STOP")) 
+				{ 
+					disconnect();
 					break; 
-					
-				case "READING":
-					handleReading(Float.parseFloat(received.getMessage()));
-					break;
-					
 				}
-			}	
-			
-			userInput = "";
+				else {
+					
+					switch(received.getType()){
+					
+					case "REQUEST_TYPE": 
+						answerType();
+						break; 
+						
+					case "READING":
+						handleReading(Float.parseFloat(received.getMessage()));
+						break;
+						
+					case "STOP":
+						handleReading(Float.parseFloat(received.getMessage()));
+						break;
+						
+					}
+				}	
+				
+				userInput = "";
+			}
+		} 
+		catch(IOException | ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 		
-		socket.close(); 
-		objinput.close(); 
-		objoutput.close(); 
+		disconnect();
 	}
 	
 	protected abstract void handleReading(float value);
@@ -113,11 +126,23 @@ public abstract class Controller {
 	 * Disconnect from server
 	 * @throws IOException
 	 */
-	protected void disconnect() throws IOException {
+	protected void disconnect() {
 		 
-		System.out.println("Closing this connection : " + this.socket); 
-		System.out.println("Connection closed"); 
-		objoutput.writeObject(new ControllerMessage("STOP", 0, ""));
+		try {
+
+			System.out.println("Closing this connection : " + this.socket); 
+			System.out.println("Connection closed"); 
+			objoutput.writeObject(new ControllerMessage("STOP", 0, ""));
+			
+			userInputThread.interrupt();
+			socket.close(); 
+			objinput.close(); 
+			objoutput.close();
+		
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		} 
 	}
 	
 	/**
@@ -148,29 +173,42 @@ public abstract class Controller {
 
 		String ip = args[0];
 		int port = Integer.parseInt(args[1]);
-		String type = args[2];
-		
-		@SuppressWarnings("unused")
-		Controller client;
+		Scanner scn = new Scanner(System.in); 
 		
 		try {
-		
-		switch (type) {
-		
-		case "TEMP":
+			
+		//Ask the user which kind of controller they want
+			while(true) {
+				
+				System.out.println("Please enter the type of controller you would like to start up ('TEMP' or 'LIGHT')"); 
+				
+					switch (scn.nextLine()) {
+					
+					case "TEMP":
 
-			client = new TempController(ip, port);
-			break;
+						scn.close();
+						new TempController(ip, port);
+						return;
+						
+					case "LIGHT":
+						
+						scn.close();
+						new LightController(ip, port);
+						return;
+						
+					default:
+						
+						System.out.println("Input was not 'TEMP or 'LIGHT'"); 
+							
+					}
+			}
 			
-		case "LIGHT":
-			
-			client = new LightController(ip, port);
-			break;
 		}
-		
-		} catch (Exception e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		catch(IOException e) {
+			
+			System.out.println("Controller set up failed");
+			e.printStackTrace(); 	
+			scn.close();
 		}
 	}
 }
