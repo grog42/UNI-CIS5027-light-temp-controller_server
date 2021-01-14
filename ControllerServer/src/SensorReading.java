@@ -53,7 +53,7 @@ public class SensorReading {
 	
 	//Calculate in milliseconds the time until the next reading
 	public long calcWaitTime() {
-		return 1000;
+		return Math.round(frequency);
 	}
 
 	public int getId() {

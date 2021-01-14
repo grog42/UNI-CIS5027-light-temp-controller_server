@@ -48,6 +48,7 @@ class ControllerHandler extends Thread
 					}
 
 					Thread.sleep(reading.calcWaitTime());
+					System.out.println("Delay to next reading: " + reading.calcWaitTime());
 				}
 				
 				System.out.println("DataReadingThread ended");

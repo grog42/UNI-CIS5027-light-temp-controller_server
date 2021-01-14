@@ -5,6 +5,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+import javax.swing.JFrame;
+
 /**
  * A objects which acts as a client to communicate with the server for enviromental data
  * @author RohanCollins
@@ -19,8 +21,9 @@ public abstract class Controller {
 	protected final Socket 						socket;
 	protected final String						ipaddress;
 	protected final int							portnumber;
-
 	protected String 							userInput;
+	protected Thread 							mainThread;
+	protected EnvironmentalDisplay				userInterface;
 	
 	/**
 	 * Thread to listen for user input
@@ -54,7 +57,7 @@ public abstract class Controller {
 	 * @throws UnknownHostException 
 	 * @throws Exception  
 	 */
-	public Controller(String ipaddress, int port, String type) throws IOException {
+	public Controller(String ipaddress, int port, String type, EnvironmentalDisplay userInterface) throws IOException {
 		
 		System.out.println("Controller set up...");
 		
@@ -62,6 +65,7 @@ public abstract class Controller {
 		this.ipaddress = ipaddress;
 		this.portnumber = port;
 		this.userInput = "";
+		this.userInterface = userInterface;
 
 		//connect to server
 		this.socket = new Socket(this.ipaddress, this.portnumber);
@@ -69,20 +73,15 @@ public abstract class Controller {
 		this.objinput = new ObjectInputStream(this.socket.getInputStream()); 
 
 		System.out.println("Controller set up complete");
-				
-	}
-	
-	/**
-	 * Starts the communications loop with the server
-	 * @throws Exception
-	 */
-	protected void start() {
 		
+		Thread mainThread = Thread.currentThread();
+		
+		//Starts the communications loop with the server'
 		try {
 			
 			this.userInputThread.start();
 			
-			while (true) 
+			while (!mainThread.isInterrupted()) 
 			{ 
 				ControllerMessage received = readStream();
 				
@@ -100,11 +99,12 @@ public abstract class Controller {
 						break; 
 						
 					case "READING":
-						handleReading(Float.parseFloat(received.getMessage()));
+						userInterface.handleReading(Float.parseFloat(received.getMessage()));
 						break;
 						
 					case "STOP":
-						handleReading(Float.parseFloat(received.getMessage()));
+						answerStop();
+
 						break;
 						
 					}
@@ -118,9 +118,8 @@ public abstract class Controller {
 		}
 		
 		disconnect();
+				
 	}
-	
-	protected abstract void handleReading(float value);
 	
 	/**
 	 * Disconnect from server
@@ -138,6 +137,7 @@ public abstract class Controller {
 			socket.close(); 
 			objinput.close(); 
 			objoutput.close();
+			userInterface.dispose();
 		
 		} catch (IOException e) {
 
@@ -152,6 +152,12 @@ public abstract class Controller {
 	protected void answerType() throws IOException {
 		
 		objoutput.writeObject(new ControllerMessage("ANSWER_TYPE", 0, type));
+		System.out.println("Type sent");
+	}
+	
+	protected void answerStop() throws IOException {
+		
+		objoutput.writeObject(new ControllerMessage("STOP", 0, ""));
 		System.out.println("Type sent");
 	}
 	

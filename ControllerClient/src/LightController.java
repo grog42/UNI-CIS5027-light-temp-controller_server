@@ -12,13 +12,6 @@ public class LightController extends Controller{
 	
 	public LightController(String ipaddress, int port) throws IOException {
 		
-		super(ipaddress, port, "LIGHT");
-		this.start();
-	}
-
-	@Override
-	protected void handleReading(float value) {
-		// TODO Auto-generated method stub
-		
+		super(ipaddress, port, "LIGHT", new LightDisplay());
 	}
 }
