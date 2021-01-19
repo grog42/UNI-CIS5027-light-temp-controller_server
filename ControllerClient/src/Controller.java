@@ -77,45 +77,47 @@ public abstract class Controller {
 		Thread mainThread = Thread.currentThread();
 		
 		//Starts the communications loop with the server'
-		try {
-			
+
 			this.userInputThread.start();
 			
 			while (!mainThread.isInterrupted()) 
 			{ 
-				ControllerMessage received = readStream();
+				try {
+					ControllerMessage received = readStream();
 				
-				if(userInput.equals("STOP")) 
-				{ 
-					disconnect();
-					break; 
-				}
-				else {
-					
-					switch(received.getType()){
-					
-					case "REQUEST_TYPE": 
-						answerType();
+					if(userInput.equals("STOP")) 
+					{ 
+						disconnect();
 						break; 
-						
-					case "READING":
-						userInterface.handleReading(Float.parseFloat(received.getMessage()));
-						break;
-						
-					case "STOP":
-						answerStop();
-
-						break;
-						
 					}
-				}	
+					else {
+					
+						switch(received.getType()){
+					
+						case "REQUEST_TYPE": 
+							answerType();
+							break; 
+						
+						case "READING":
+							userInterface.handleReading(Float.parseFloat(received.getMessage()));
+							break;
+						
+						case "STOP":
+							answerStop();
+
+							break;
+						
+						}
+					}	
 				
-				userInput = "";
+					userInput = "";
+				
+				} 
+				catch(IOException | ClassNotFoundException e) {
+					System.out.println("Message recived error; Moving to next message");
+					
+				}
 			}
-		} 
-		catch(IOException | ClassNotFoundException e) {
-			e.printStackTrace();
-		}
 		
 		disconnect();
 				
@@ -142,6 +144,7 @@ public abstract class Controller {
 		} catch (IOException e) {
 
 			e.printStackTrace();
+			
 		} 
 	}
 	
@@ -158,9 +161,8 @@ public abstract class Controller {
 	protected void answerStop() throws IOException {
 		
 		objoutput.writeObject(new ControllerMessage("STOP", 0, ""));
-		System.out.println("Type sent");
+		System.out.println("Stop sent");
 	}
-	
 	
 	/**
 	 * @return Message received from server
@@ -181,40 +183,37 @@ public abstract class Controller {
 		int port = Integer.parseInt(args[1]);
 		Scanner scn = new Scanner(System.in); 
 		
-		try {
-			
 		//Ask the user which kind of controller they want
-			while(true) {
-				
+		while(true) {
+			try {
 				System.out.println("Please enter the type of controller you would like to start up ('TEMP' or 'LIGHT')"); 
+			
+				switch (scn.nextLine()) {
 				
-					switch (scn.nextLine()) {
-					
-					case "TEMP":
+				case "TEMP":
 
-						scn.close();
-						new TempController(ip, port);
-						return;
+					scn.close();
+					new TempController(ip, port);
+					return;
+					
+				case "LIGHT":
+					
+					scn.close();
+					new LightController(ip, port);
+					return;
+					
+				default:
+					
+					System.out.println("Input was not 'TEMP or 'LIGHT'"); 
 						
-					case "LIGHT":
-						
-						scn.close();
-						new LightController(ip, port);
-						return;
-						
-					default:
-						
-						System.out.println("Input was not 'TEMP or 'LIGHT'"); 
-							
-					}
-			}
+				}
+			}	
+			catch(IOException e) {
 			
-		}
-		catch(IOException e) {
-			
-			System.out.println("Controller set up failed");
+			System.out.println("Controller set up failed try again");
 			e.printStackTrace(); 	
-			scn.close();
+
+			}
 		}
 	}
 }
