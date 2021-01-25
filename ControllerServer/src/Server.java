@@ -16,9 +16,9 @@ public class Server {
 
 	private ServerSocket 			server_socket;
 	
-	private ControllerHandler[]		handlers;
+	private ClientHandler[]		handlers;
 	
-	private String 					userInput;
+	private SharedString 			userInput;
 	
 	protected final Thread socketAcceptingThread = new Thread() {
 		
@@ -66,8 +66,8 @@ public class Server {
 		//Store reference to sensor data file
 		this.csv = csv;
 		this.server_socket = new ServerSocket(port);
-		this.userInput = "";
-		this.handlers = new ControllerHandler[2];
+		this.userInput = new SharedString("");
+		this.handlers = new ClientHandler[2];
 		
 		System.out.println("## server is listening to port: " + port + " waiting for client connections..");
 		socketAcceptingThread.start();
@@ -84,9 +84,9 @@ public class Server {
 		
 		Scanner scn = new Scanner(System.in);
 		
-		while(!userInput.equals("STOP")) {
+		while(!userInput.get().equals("STOP")) {
 			
-			userInput = scn.nextLine();		
+			userInput.put(scn.nextLine());	
 			
 			System.out.println("User inputted:" + userInput);
 			
@@ -99,17 +99,23 @@ public class Server {
 	private void addHandler(int index, Socket socket) throws IOException {
 		
 		//A new thread is created to handle the client
-		handlers[index] = new ControllerHandler(socket, csv);
+		handlers[index] = new ClientHandler(socket, csv);
 		handlers[index].start();
 		System.out.println("Handler running");
 	}
 	
 	private void removeHandler(int index) {
 		
-		if(!handlers[index].equals(null)) {
+		if(!(handlers[0] != null)) {
 			
-			handlers[index].interrupt();
-			handlers[index] = null;
+			handlers[index].close();
+			
+			try {
+				handlers[index].join();
+			} catch (InterruptedException e) {
+
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -117,37 +123,35 @@ public class Server {
 
 		int port = Integer.parseInt(args[0]);
 		Scanner scn = new Scanner(System.in); 
+		File csv = null;
+
+		do {
+			
+			System.out.println("Please enter the file path of the csv else leave blank for default"); 
+			
+			String input = scn.nextLine();
+			csv = new File(input);
+						
+			if(input.isBlank()) {
+				
+				csv = new File(System.getProperty("user.dir") + "\\sensor_data.csv");
+
+			} else {
+				
+				csv = new File(input);
+			}
+			
+			System.out.println("File path: " + csv.toPath());
+			
+		} while (!csv.exists());
 		
 		try {
 			
-			while(true) {
-				
-				System.out.println("Please enter the file path of the csv else leave blank for default"); 
-				
-				String input = scn.nextLine();
-				File csv = new File(input);
-				
-				if(csv.exists()) {
-					
-					new Server(port, csv);
-					break;
-				}
-				
-				if(input.isBlank()) {
-					new Server(port, new File("D:\\Documents\\eclipse-workspace\\ControllerServer\\sensor_data.csv"));
-					break;
-				}
-					
-				System.out.println("File not found");
-			}
+			new Server(port, csv);
 			
-		} catch (Exception e) {
-
-			System.out.println("Server startup failed");
+		} catch (IOException e) {
+			System.out.println("Server start up failed");
 			e.printStackTrace();
-		}		
-			
-		scn.close();
-		
+		}
 	}
 }

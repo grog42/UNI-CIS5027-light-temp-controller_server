@@ -4,6 +4,12 @@ import fan.Fan;
 import fan.FanPanel;
 import fan.SpeedPanel;
 
+
+/**
+ * Provides a visual display of a fan with an alternating speed based on supplied temperature.
+ * @author RohanCollins
+ *
+ */
 public class FanDisplay extends EnvironmentalDisplay{
 
 	private FanPanel 		fan_panel;

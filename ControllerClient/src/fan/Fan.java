@@ -12,6 +12,11 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 
+/**
+ * 
+ * @adapted-by RohanCollins
+ *
+ */
 public class Fan {
 	
 	private final int triWidth = 20, triHeight = 40; //Wing triangle variables

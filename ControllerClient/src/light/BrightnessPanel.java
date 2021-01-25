@@ -7,6 +7,11 @@ import javax.swing.JPanel;
 
 import light.Light;
 
+/**
+ * 
+ * @author RohanCollins
+ *
+ */
 public class BrightnessPanel extends JPanel{
 	
 	private static final long 	serialVersionUID = 1L;

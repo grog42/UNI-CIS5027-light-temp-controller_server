@@ -4,6 +4,11 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.JPanel;
 
+/**
+ * 
+ * @adapted-by RohanCollins
+ *
+ */
 public class LightPanel extends JPanel {
 	
 	private Light 	light;

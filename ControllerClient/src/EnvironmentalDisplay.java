@@ -5,20 +5,25 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+/**
+ * Class used to offer a visual display for the environmental controllers
+ * @author RohanCollins
+ *
+ */
 public abstract class EnvironmentalDisplay extends JFrame{
 
 	protected JButton stopButton = new JButton("Stop");
 	
+	protected SharedString userInput;
+	
 	protected EnvironmentalDisplay(){
-		
-		Thread currentThread = Thread.currentThread();
 		
 		stopButton.addActionListener(new ActionListener () {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				currentThread.interrupt();
+				userInput.put("STOP");
 			}});
 		
 		add(stopButton, BorderLayout.NORTH);
@@ -28,5 +33,18 @@ public abstract class EnvironmentalDisplay extends JFrame{
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 	
+	/**
+	 * Link access to the user input string
+	 * @param userInput
+	 */
+	public void linkUserInput(SharedString userInput) {
+		
+		this.userInput = userInput;
+	}
+	
+	/**
+	 * Taking an environmental reading as an input this function determines how the GUI should change based on the input
+	 * @param value
+	 */
 	public abstract void handleReading(float value);
 }

@@ -8,13 +8,13 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-
+/**
+ * 
+ * @adapted-by RohanCollins
+ *
+ */
 public class FanPanel extends JPanel implements ActionListener {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private Fan 	fan;
 	private Timer 	timer;
 	
@@ -48,7 +48,7 @@ public class FanPanel extends JPanel implements ActionListener {
 	
 	/**
 	 * this function is called, everytime the timer goes off (in this case 3 ms). 
-	 * https://docs.oracle.com/javase/tutorial/uiswing/misc/timer.html
+	 *
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {

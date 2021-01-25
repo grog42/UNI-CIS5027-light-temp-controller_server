@@ -1,4 +1,3 @@
-:: Updated bat files to resolve typing issues in the command line
 
 :: compile the server program
 call ant -f build_server.xml jar

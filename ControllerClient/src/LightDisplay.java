@@ -7,6 +7,11 @@ import light.BrightnessPanel;
 import light.Light;
 import light.LightPanel;
 
+/**
+ * A GUI for light controllers
+ * @author RohanCollins
+ *
+ */
 public class LightDisplay extends EnvironmentalDisplay {
 
 	private LightPanel 			light_panel;
@@ -32,6 +37,7 @@ public class LightDisplay extends EnvironmentalDisplay {
 		
 		handleReading(0);
 	}
+	
 	@Override
 	public void handleReading(float value) {
 		
@@ -40,5 +46,4 @@ public class LightDisplay extends EnvironmentalDisplay {
 		light_instance.setBrightness(brightness);
 		brightness_panel.setBrightnessValue(brightness);
 	}
-
 }

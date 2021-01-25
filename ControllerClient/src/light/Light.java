@@ -6,6 +6,11 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 
+/**
+ * 
+ * @author RohanCollins
+ *
+ */
 public class Light {
 		
 	private	float brightness;
